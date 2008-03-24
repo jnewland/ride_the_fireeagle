@@ -8,10 +8,10 @@ module RideTheFireeagle
       #load up the config file
       @@fireeagle_config_path = options[:fireeagle_config_path] || (RAILS_ROOT + '/config/fireeagle.yml')
       @@fireeagle_config ||= YAML.load_file(@@fireeagle_config_path)["fireeagle"].symbolize_keys
-      
+
       include InstanceMethods
     end
-    
+
     def fireeagle
       FireEagle::Client.new(
         :consumer_key => fireeagle_config[:consumer_key], 
@@ -21,25 +21,25 @@ module RideTheFireeagle
         :access_token_secret => fireeagle_config[:general_purpose_token_secret]
       )
     end
-    
+
     def find_fireeagle_recent(args = {})
       args = {:limit => 10, :offset => 0, :time => 'now'}.merge(args)
       fe_users = fireeagle.recent(args[:limit], args[:offset], args[:time]) rescue []
       convert_fe_users_to_ar_objects(fe_users)
     end
-    
+
     def find_fireeagle_within(location = {}, args = {})
       args = {:limit => 10, :offset => 0}.merge(args)
       fe_users = fireeagle.within(location, args[:limit], args[:offset]) rescue []
       convert_fe_users_to_ar_objects(fe_users)
     end
-    
+
     def fireeagle_config
       @@fireeagle_config
     end
-    
+
   private
-  
+
     def convert_fe_users_to_ar_objects(fe_users)
       users = []
       fe_users.each do |fe_user|
@@ -51,9 +51,9 @@ module RideTheFireeagle
       end
       users
     end
-    
+
   end
-  
+
   module InstanceMethods
     def fireeagle_config
       self.class.fireeagle_config
@@ -95,7 +95,7 @@ module RideTheFireeagle
     end
 
     def location
-      return false unless self.authorized_with_fireeagle?
+      return nil unless self.authorized_with_fireeagle?
       begin
         return @location ||= self.fireeagle.user.best_guess
       rescue
@@ -108,7 +108,7 @@ module RideTheFireeagle
     end
 
   private
-  
+
     def fireeagle
       if self.authorized_with_fireeagle?
         FireEagle::Client.new(
@@ -134,6 +134,6 @@ module RideTheFireeagle
         )
       end
     end
-  
+
   end
 end
