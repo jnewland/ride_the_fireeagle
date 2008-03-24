@@ -4,5 +4,5 @@ fireeagle:
   consumer_secret: CONSUMER_SECRET
   general_purpose_access_token: GP_AT
   general_purpose_token_secret: GP_TS
-  #https://fireeagle.yahoo.net/oauth/mobile_auth/XXX
+  # https://fireeagle.yahoo.net/oauth/mobile_auth/XXX
   mobile_app_id: 1234
