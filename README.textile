@@ -70,7 +70,9 @@ Oh, and you get some pretty rad class-level finders too:
 
 The call above returns a list of users of the application who have updated their location within the given amount of time. The @time@ condition is flexible, supported forms are 'now', 'yesterday', '12:00', '13:00', '1:00pm' and '2008-03-12 12:34:56'. (default: 'now')
 
+<pre>
 >> User.find_fireeagle_within(:conditions => { :woe => "12796255" }, :limit => 10, :offset => 0)
+</pre>
 
 The call above takes a Place ID or a WoE ID and returns a list of users using your application who are within the bounding box of that location. Not for the faint of heart, this method is experimental and may not be stable.
 
