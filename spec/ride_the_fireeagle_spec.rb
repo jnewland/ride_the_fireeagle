@@ -20,6 +20,23 @@ describe "The plugin" do
 
 end
 
+describe "The User class" do
+  before(:each) do
+    @client = FireEagle::Client.new(:consumer_key => 'key', :consumer_secret => 'sekret', :access_token => 'token', :access_token_secret => 'secret')
+    User.should_receive(:fireeagle).and_return(@client)
+  end
+
+  it "should load recently updated users" do
+    @client.should_receive(:recent)
+    User.fireeagle_recent
+  end
+
+  it "should load users within a bounding box" do
+    @client.should_receive(:within)
+    User.fireeagle_within
+  end
+end
+
 describe "An new User" do
 
   before(:each) do
@@ -140,25 +157,45 @@ describe "An authorized User" do
 
   end
 
-  describe "should be able to" do
+  describe "when updating it's location" do
 
     before(:each) do
       @client = FireEagle::Client.new(:consumer_key => 'key', :consumer_secret => 'sekret', :access_token => 'token', :access_token_secret => 'secret')
       @user.should_receive(:fireeagle).and_return(@client)
-    end
-
-    it "update it's location" do
       @response = mock(FireEagle::Response)
       @response.should_receive(:success?).and_return(true)
       @client.should_receive(:update).and_return(@response)
-      @user.update_location(:q => 'foo').should be_true
     end
 
-    it "query it's location" do
+    it "should return true" do
+      @user.update_location(:q => 'Atlanta, Ga').should be_true
+    end
+
+  end
+
+  describe "when querying it's location" do
+
+    before(:each) do
+      @client = FireEagle::Client.new(:consumer_key => 'key', :consumer_secret => 'sekret', :access_token => 'token', :access_token_secret => 'secret')
       @fe_user = mock(FireEagle::User)
       @location = mock(FireEagle::Location)
+    end
+
+    it "should return a FireEagle::Location" do
+      @user.should_receive(:fireeagle).and_return(@client)
       @fe_user.should_receive(:best_guess).and_return(@location)
       @client.should_receive(:user).and_return(@fe_user)
+      @user.location.should == @location
+    end
+    
+    it "should cache subsequent calls to #location" do
+      #fake a call to #location
+      @user.should_receive(:fireeagle).and_return(@client)
+      @fe_user.should_receive(:best_guess).and_return(@location)
+      @client.should_receive(:user).and_return(@fe_user)
+      @user.location.should == @location
+      
+      @client.should_not_receive(:user)
       @user.location.should == @location
     end
 

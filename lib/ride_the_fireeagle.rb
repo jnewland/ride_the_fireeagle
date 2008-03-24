@@ -12,6 +12,24 @@ module RideTheFireeagle
       include InstanceMethods
     end
     
+    def fireeagle
+      FireEagle::Client.new(
+        :consumer_key => fireeagle_config[:consumer_key], 
+        :consumer_secret => fireeagle_config[:consumer_secret],
+        :app_id => fireeagle_config[:mobile_app_id], 
+        :access_token => fireeagle_config[:general_purpose_access_token],
+        :access_token_secret => fireeagle_config[:general_purpose_token_secret]
+      )
+    end
+    
+    def fireeagle_recent(count = 10, start = 0, time = 'now')
+      fireeagle.recent(count, start, time)
+    end
+    
+    def fireeagle_within(location = {}, count = 10, start = 0)
+      fireeagle.within(location, count, start)
+    end
+    
     def fireeagle_config
       @@fireeagle_config
     end
@@ -22,22 +40,22 @@ module RideTheFireeagle
       self.class.fireeagle_config
     end
     
-    def fireeagle(app_id, consumer_key, consumer_secret)
+    def fireeagle
       if self.authorized_with_fireeagle?
         FireEagle::Client.new(
           :consumer_key => self.fireeagle_config[:consumer_key], 
           :consumer_secret => self.fireeagle_config[:consumer_secret],
           :app_id => self.fireeagle_config[:mobile_app_id], 
-          :access_token => self.access_token,
-          :access_token_secret => self.access_token_secret
+          :access_token => self.fireeagle_access_token,
+          :access_token_secret => self.fireeagle_access_token_secret
         )
       elsif self.has_request_token_from_fireeagle?
         FireEagle::Client.new(
           :consumer_key => self.fireeagle_config[:consumer_key], 
           :consumer_secret => self.fireeagle_config[:consumer_secret],
           :app_id => self.fireeagle_config[:mobile_app_id], 
-          :request_token => self.request_token,
-          :request_token_secret => self.request_token_secret
+          :request_token => self.fireeagle_request_token,
+          :request_token_secret => self.fireeagle_request_token_secret
         )
       else
         FireEagle::Client.new(
@@ -86,8 +104,7 @@ module RideTheFireeagle
     def location
       return false unless self.authorized_with_fireeagle?
       begin
-        response = self.fireeagle.user
-        return response.best_guess
+        return @location ||= response = self.fireeagle.user.best_guess
       rescue
         return nil
       end
