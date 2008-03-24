@@ -4,12 +4,15 @@ This is a Rails plugin that easily integrates your app with "Fire Eagle":http://
 
 For now, it only covers the ActiveRecord side of things. Full support for handling the entire authentication flow coming soon.
 
-h3. Usage
+h3. Install
 
+# @gem install fireeagle@
 # @./script/generate ride_the_fireeagle User@
 # @rake db:migrate@
 # @mate config/fireeagle.yml@, add your FireEagle application info
 # Add @ride_the_fireeagle@ to @/app/models/user.rb@
+
+h3. Usage
 
 Once that's all done, your instances of @User@ have some fun new methods:
 
