@@ -21,10 +21,10 @@ ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :dbfile => ":memo
 ActiveRecord::Schema.define(:version => 1) do
   create_table :users do |t|
     t.column :username, :string
-    t.column :request_token, :string
-    t.column :request_token_secret, :string
-    t.column :access_token, :string
-    t.column :access_token_secret, :string
+    t.column :fireeagle_request_token, :string
+    t.column :fireeagle_request_token_secret, :string
+    t.column :fireeagle_access_token, :string
+    t.column :fireeagle_access_token_secret, :string
   end
 end
 

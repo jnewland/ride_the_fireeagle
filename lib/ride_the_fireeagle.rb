@@ -23,7 +23,7 @@ module RideTheFireeagle
     end
     
     def fireeagle(app_id, consumer_key, consumer_secret)
-      if self.authorized?
+      if self.authorized_with_fireeagle?
         FireEagle::Client.new(
           :consumer_key => self.fireeagle_config[:consumer_key], 
           :consumer_secret => self.fireeagle_config[:consumer_secret],
@@ -31,7 +31,7 @@ module RideTheFireeagle
           :access_token => self.access_token,
           :access_token_secret => self.access_token_secret
         )
-      elsif self.has_request_token?
+      elsif self.has_request_token_from_fireeagle?
         FireEagle::Client.new(
           :consumer_key => self.fireeagle_config[:consumer_key], 
           :consumer_secret => self.fireeagle_config[:consumer_secret],
@@ -48,30 +48,30 @@ module RideTheFireeagle
       end
     end
 
-    def has_request_token?
-      !self.request_token.blank? && !self.request_token_secret.blank?
+    def has_request_token_from_fireeagle?
+      !self.fireeagle_request_token.blank? && !self.fireeagle_request_token_secret.blank?
     end
 
-    def authorized?
-      !self.access_token.blank? && !self.access_token_secret.blank?
+    def authorized_with_fireeagle?
+      !self.fireeagle_access_token.blank? && !self.fireeagle_access_token_secret.blank?
     end
 
-    def get_request_token
+    def get_fireeagle_request_token
       token = self.fireeagle.get_request_token(true)
-      self.update_attributes(:request_token => token.token, :request_token_secret => token.secret, :access_token => nil, :access_token_secret => nil)
+      self.update_attributes(:fireeagle_request_token => token.token, :fireeagle_request_token_secret => token.secret, :fireeagle_access_token => nil, :fireeagle_access_token_secret => nil)
       return token.token
     end
 
-    def authorization_url
-      return nil unless self.has_request_token?
+    def fireeagle_authorization_url
+      return nil unless self.has_request_token_from_fireeagle?
       self.fireeagle.authorization_url
     end
 
-    def authorize
-      return false unless self.has_request_token?
+    def authorize_with_fireeagle
+      return false unless self.has_request_token_from_fireeagle?
       begin
         token = self.fireeagle.convert_to_access_token
-        self.update_attributes(:request_token => nil, :request_token_secret => nil, :access_token => token.token, :access_token_secret => token.secret)
+        self.update_attributes(:fireeagle_request_token => nil, :fireeagle_request_token_secret => nil, :fireeagle_access_token => token.token, :fireeagle_access_token_secret => token.secret)
         return true
       rescue
         return false
@@ -79,15 +79,15 @@ module RideTheFireeagle
     end
 
     def update_location(q)
-      return false unless self.authorized?
+      return false unless self.authorized_with_fireeagle?
       self.fireeagle.update(:q => q).success?
     end
 
     def location
-      return false unless self.authorized?
+      return false unless self.authorized_with_fireeagle?
       begin
         response = self.fireeagle.user
-        return response.best_guess.name
+        return response.best_guess
       rescue
         return nil
       end
