@@ -11,6 +11,54 @@ h3. Usage
 # @mate config/fireeagle.yml@, add your FireEagle application info
 # Add @ride_the_fireeagle@ to @/app/models/user.rb@
 
+Once that's all done, your instances of @User@ have some fun new methods:
+
+<pre>
+>> @user = User.create(:login => 'alice')
+>> @user.authorized_with_fireeagle?
+=> false
+</pre>
+
+So, this user hasn't linked their account to Fire Eagle yet. Send them to an action that does the following:
+
+<pre>
+  def activate_fireeagle
+    @user = User.find(params[:id])
+    @user.get_fireeagle_request_token
+    redirect_to @user.fireeagle_authorization_url
+  end
+</pre>
+
+Now you wait for the user to authorize. When they authorize, Fire Eagle will invoke your application callback URL with the request token appended as parameters.
+
+<pre>
+  def fireeagle_callback
+    @user = User.find_by_fireeagle_request_token(params[:oauth_token])
+    @user.authorize_with_fireeagle
+  end
+</pre>
+
+Now that user is authorized with Fire Eagle!
+
+<pre>
+>> @user = User.find_by_login('alice')
+>> @user.authorized_with_fireeagle?
+=> true
+</pre>
+
+You can now update and query that user's location, assuming the User gave you those permissions when authorizing.
+
+<pre>
+>> @user = User.find_by_login('alice')
+>> @user.update_location(:q => "Atlanta, GA")
+>> @user.location.name
+=> "Atlanta, GA"
+</pre>
+
+More information about the acceptable parameters for updating a User's location is available in the RDoc for "FireEagle::Client#update":http://fireeagle.rubyforge.org/classes/FireEagle/Client.html
+
+More information about 'location' response is available in the RDoc for "FireEagle::Location":http://fireeagle.rubyforge.org/classes/FireEagle/Location.html. The 'best guess' location is currently automatically selected and returned.
+
 h3. Author
 
 "Jesse Newland":http://jnewland.com/
