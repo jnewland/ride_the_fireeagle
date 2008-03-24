@@ -1,0 +1,20 @@
+h2. Ride The FireEagle
+
+This is a Rails plugin that easily integrates your app with "Fire Eagle":http://fireeagle.com/
+
+For now, it only covers the ActiveRecord side of things. Full support for handling the entire authentication flow coming soon.
+
+h3. Usage
+
+# @./script/generate ride_the_fireeagle User@
+# @rake db:migrate@
+# @mate config/fireeagle.yml@, add your FireEagle application info
+# Add @ride_the_fireeagle@ to @/app/models/user.rb@
+
+h3. Author
+
+"Jesse Newland":http://jnewland.com/
+
+h3. License
+
+"WTFPL":http://sam.zoy.org/wtfpl/
