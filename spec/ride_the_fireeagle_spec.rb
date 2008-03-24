@@ -35,18 +35,18 @@ describe "The User class" do
 
   it "should load recently updated users" do
     @client.should_receive(:recent).with(10, 0, 'now').and_return([@fe_user_1, @fe_user_2])
-    users = User.find_fireeagle_recent(:limit => 10, :offset => 0, :time => 'now')
+    users = User.find_fireeagle_recent(:limit => 10, :offset => 0, :conditions => {:time => 'now'})
   end
 
   it "should load users within a bounding box" do
     @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
-    users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
+    users = User.find_fireeagle_within(:conditions => {:foo => :bar}, :limit => 10, :offset => 0)
     users.map(&:fireeagle_access_token).should == [@user1, @user2].map(&:fireeagle_access_token)
   end
 
   it "should cache users' locations when calling class level finders" do
     @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
-    users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
+    users = User.find_fireeagle_within(:conditions => {:foo => :bar}, :limit => 10, :offset => 0)
     user = users.first
     user.stub!(:authorized_with_fireeagle?).and_return(true)
     @client.should_not_receive(:user)

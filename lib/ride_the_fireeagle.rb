@@ -23,14 +23,14 @@ module RideTheFireeagle
     end
 
     def find_fireeagle_recent(args = {})
-      args = {:limit => 10, :offset => 0, :time => 'now'}.merge(args)
-      fe_users = fireeagle.recent(args[:limit], args[:offset], args[:time]) rescue []
+      args = {:limit => 10, :offset => 0, :conditions => {:time => 'now'}}.merge(args)
+      fe_users = fireeagle.recent(args[:limit], args[:offset], args[:conditions][:time]) rescue []
       convert_fe_users_to_ar_objects(fe_users)
     end
 
-    def find_fireeagle_within(location = {}, args = {})
-      args = {:limit => 10, :offset => 0}.merge(args)
-      fe_users = fireeagle.within(location, args[:limit], args[:offset]) rescue []
+    def find_fireeagle_within(args = {})
+      args = {:limit => 10, :offset => 0, :conditions => {}}.merge(args)
+      fe_users = fireeagle.within(args[:conditions], args[:limit], args[:offset]) rescue []
       convert_fe_users_to_ar_objects(fe_users)
     end
 

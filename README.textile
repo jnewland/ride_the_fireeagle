@@ -60,7 +60,21 @@ You can now update and query that user's location, assuming the User gave you th
 
 More information about the acceptable parameters for updating a User's location is available in the RDoc for "FireEagle::Client#update":http://fireeagle.rubyforge.org/classes/FireEagle/Client.html
 
-More information about 'location' response is available in the RDoc for "FireEagle::Location":http://fireeagle.rubyforge.org/classes/FireEagle/Location.html. The 'best guess' location is currently automatically selected and returned.
+More information about 'location' response is available in the RDoc for "FireEagle::Location":http://fireeagle.rubyforge.org/classes/FireEagle/Location.html. The 'best guess' location is currently automatically selected and returned. We'd really appreciate it if you didn't call FireEagle to get a user's location on every page load - please cache locations for an appropriate length of time
+
+Oh, and you get some pretty rad class-level finders too:
+
+<pre>
+>> User.find_fireeagle_recent(:conditions => { :time => 'now' }, :limit => 10, :offset => 0)
+</pre>
+
+The call above returns a list of users of the application who have updated their location within the given amount of time. The @time@ condition is flexible, supported forms are 'now', 'yesterday', '12:00', '13:00', '1:00pm' and '2008-03-12 12:34:56'. (default: 'now')
+
+>> User.find_fireeagle_within(:conditions => { :woe => "12796255" }, :limit => 10, :offset => 0)
+
+The call above takes a Place ID or a WoE ID and returns a list of users using your application who are within the bounding box of that location. Not for the faint of heart, this method is experimental and may not be stable.
+
+The arrays of Users returned by both of the class level finders have their most recent location information cached fresh from Fire Eagle.
 
 h3. Author
 
