@@ -44,7 +44,10 @@ module RideTheFireeagle
       users = []
       fe_users.each do |fe_user|
         user = find_by_fireeagle_access_token(fe_user.token)
-        users << user unless user.nil?
+        unless user.nil?
+          user.stash_location(fe_user.best_guess)
+          users << user
+        end
       end
       users
     end
@@ -99,9 +102,13 @@ module RideTheFireeagle
         return nil
       end
     end
-  
+
+    def stash_location(location)
+      @location = location
+    end
+
   private
-    
+  
     def fireeagle
       if self.authorized_with_fireeagle?
         FireEagle::Client.new(

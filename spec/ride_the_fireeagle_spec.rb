@@ -29,9 +29,8 @@ describe "The User class" do
     @user2 = User.create(:fireeagle_access_token => 'user2')
     @location_1 = stub(FireEagle::Location, :name => 'location1')
     @location_2 = stub(FireEagle::Location, :name => 'location2')
-    @fe_user_1 = stub(FireEagle::User, :token => 'user1', :location => @location_1)
-    @fe_user_2 = stub(FireEagle::User, :token => 'user2', :location => @location_2)
-
+    @fe_user_1 = stub(FireEagle::User, :token => 'user1', :best_guess => @location_1)
+    @fe_user_2 = stub(FireEagle::User, :token => 'user2', :best_guess => @location_2)
   end
 
   it "should load recently updated users" do
@@ -46,12 +45,12 @@ describe "The User class" do
   end
 
   it "should cache users' locations when calling class level finders" do
-    pending("for obvious reasons") do
-      @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
-      @client.should_not_receive(:user)
-      users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
-      users.first.location.should == @location_1
-    end
+    @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
+    users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
+    user = users.first
+    user.stub!(:authorized_with_fireeagle?).and_return(true)
+    @client.should_not_receive(:user)
+    user.location.name.should == 'location1'
   end
 
 end
