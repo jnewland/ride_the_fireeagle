@@ -29,20 +29,6 @@ class RideTheFireeagleGenerator < Rails::Generator::NamedBase
 
   def manifest
    record do |m|
-     # Check for class naming collisions.
-     m.class_collisions(controller_class_path, "#{controller_class_name}Controller", "#{controller_class_name}Helper")
-     m.class_collisions(class_path, "#{class_name}")
-
-     # Controller, helper, views, and test directories.
-     m.directory(File.join('app/models', class_path))
-     m.directory(File.join('app/controllers', controller_class_path))
-     m.directory(File.join('app/helpers', controller_class_path))
-     m.directory(File.join('app/views', controller_class_path, controller_file_name))
-     m.directory(File.join('test/functional', controller_class_path))
-     m.directory(File.join('test/unit', class_path))
-
-     m.dependency 'model', [singular_name] + @args, :collision => :skip
-
      # config file
      m.template 'fireeagle.yml', File.join('config', "fireeagle.yml")
 
