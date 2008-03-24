@@ -21,20 +21,39 @@ describe "The plugin" do
 end
 
 describe "The User class" do
+
   before(:each) do
     @client = FireEagle::Client.new(:consumer_key => 'key', :consumer_secret => 'sekret', :access_token => 'token', :access_token_secret => 'secret')
     User.should_receive(:fireeagle).and_return(@client)
+    @user1 = User.create(:fireeagle_access_token => 'user1')
+    @user2 = User.create(:fireeagle_access_token => 'user2')
+    @location_1 = stub(FireEagle::Location, :name => 'location1')
+    @location_2 = stub(FireEagle::Location, :name => 'location2')
+    @fe_user_1 = stub(FireEagle::User, :token => 'user1', :location => @location_1)
+    @fe_user_2 = stub(FireEagle::User, :token => 'user2', :location => @location_2)
+
   end
 
   it "should load recently updated users" do
-    @client.should_receive(:recent)
-    User.fireeagle_recent
+    @client.should_receive(:recent).with(10, 0, 'now').and_return([@fe_user_1, @fe_user_2])
+    users = User.find_fireeagle_recent(:limit => 10, :offset => 0, :time => 'now')
   end
 
   it "should load users within a bounding box" do
-    @client.should_receive(:within)
-    User.fireeagle_within
+    @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
+    users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
+    users.map(&:fireeagle_access_token).should == [@user1, @user2].map(&:fireeagle_access_token)
   end
+
+  it "should cache users' locations when calling class level finders" do
+    pending("for obvious reasons") do
+      @client.should_receive(:within).with({:foo => :bar}, 10, 0).and_return([@fe_user_1, @fe_user_2])
+      @client.should_not_receive(:user)
+      users = User.find_fireeagle_within({:foo => :bar}, :limit => 10, :offset => 0)
+      users.first.location.should == @location_1
+    end
+  end
+
 end
 
 describe "An new User" do
