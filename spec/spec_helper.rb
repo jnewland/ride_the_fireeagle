@@ -11,7 +11,7 @@ $LOAD_PATH.unshift 'lib/'
 require 'rubygems'
 require 'multi_rails_init'
 
-RAILS_ROOT = '.'    unless defined? RAILS_ROOT
+RAILS_ROOT = File.dirname(__FILE__) unless defined? RAILS_ROOT
 RAILS_ENV  = 'test' unless defined? RAILS_ENV
  
 ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV['DEBUG']

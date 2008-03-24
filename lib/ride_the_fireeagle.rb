@@ -5,31 +5,46 @@ module RideTheFireeagle
 
   module ClassMethods
     def ride_the_fireeagle(options = {})
+      #load up the config file
+      @@fireeagle_config_path = options[:fireeagle_config_path] || (RAILS_ROOT + '/config/fireeagle.yml')
+      @@fireeagle_config ||= YAML.load_file(@@fireeagle_config_path)["fireeagle"].symbolize_keys
+      
       include InstanceMethods
+    end
+    
+    def fireeagle_config
+      @@fireeagle_config
     end
   end
   
   module InstanceMethods
-    def init_fireeagle(app_id, consumer_key, consumer_secret)
+    def fireeagle_config
+      self.class.fireeagle_config
+    end
+    
+    def fireeagle(app_id, consumer_key, consumer_secret)
       if self.authorized?
-        @fireeagle = FireEagle::Client.new(
-                      :consumer_key => consumer_key, 
-                      :consumer_secret => consumer_secret,
-                      :app_id => app_id, 
-                      :access_token => self.access_token,
-                      :access_token_secret => self.access_token_secret)
+        FireEagle::Client.new(
+          :consumer_key => self.fireeagle_config[:consumer_key], 
+          :consumer_secret => self.fireeagle_config[:consumer_secret],
+          :app_id => self.fireeagle_config[:mobile_app_id], 
+          :access_token => self.access_token,
+          :access_token_secret => self.access_token_secret
+        )
       elsif self.has_request_token?
-        @fireeagle = FireEagle::Client.new(
-                      :consumer_key => consumer_key, 
-                      :consumer_secret => consumer_secret,
-                      :app_id => app_id, 
-                      :request_token => self.request_token,
-                      :request_token_secret => self.request_token_secret)
+        FireEagle::Client.new(
+          :consumer_key => self.fireeagle_config[:consumer_key], 
+          :consumer_secret => self.fireeagle_config[:consumer_secret],
+          :app_id => self.fireeagle_config[:mobile_app_id], 
+          :request_token => self.request_token,
+          :request_token_secret => self.request_token_secret
+        )
       else
-        @fireeagle = FireEagle::Client.new(
-                      :consumer_key => consumer_key,
-                      :consumer_secret => consumer_secret,
-                      :app_id => app_id)
+        FireEagle::Client.new(
+          :consumer_key => self.fireeagle_config[:consumer_key],
+          :consumer_secret => self.fireeagle_config[:consumer_secret],
+          :app_id => self.fireeagle_config[:mobile_app_id]
+        )
       end
     end
 
